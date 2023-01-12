@@ -4,6 +4,7 @@ import { UserAuth } from "../../context/AuthContextProvider";
 import { useNavigate } from "react-router-dom";
 import { signedInState } from "../../atoms/signedInState";
 import { useRecoilState } from "recoil";
+import { Container } from "react-bootstrap";
 
 const SignIn = () => {
     const { googleSignIn, user } = UserAuth();
@@ -26,12 +27,10 @@ const SignIn = () => {
     }, [user]);
 
     return (
-        <div>
+        <Container>
             <h1>Sign in</h1>
-            <div>
-                <GoogleButton onClick={handleGoogleSignIn} />
-            </div>
-        </div>
+            <GoogleButton onClick={handleGoogleSignIn} />
+        </Container>
     );
 };
 

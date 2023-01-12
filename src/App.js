@@ -7,6 +7,11 @@ import SignIn from "./pages/signin/SignIn";
 import Protected from "./components/Protected/Protected";
 import Account from "./pages/account/Account";
 import Navigation from "./components/Navbar/Navigation";
+import { Button } from "react-bootstrap";
+import { useState } from "react";
+import Cart from "./pages/cart/Cart";
+import Detail from "./components/Detail/Detail";
+import Checkout from "./pages/checkout/Checkout";
 
 function App() {
     return (
@@ -24,6 +29,16 @@ function App() {
                             </Protected>
                         }
                     />
+                    <Route
+                        path="/cart"
+                        element={
+                            <Protected>
+                                <Cart />
+                            </Protected>
+                        }
+                    />
+                    <Route path="/detail" element={<Detail />} />
+                    <Route path="/checkout" element={<Checkout />} />
                 </Routes>
             </AuthContextProvider>
         </>
