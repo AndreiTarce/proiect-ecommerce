@@ -4,12 +4,17 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
+import addToCart from "../../pages/cart/addToCart";
+import { UserAuth } from "../../context/AuthContextProvider";
+import toast, { Toaster } from "react-hot-toast";
 
 const Detail = () => {
     let params = new URL(document.location).searchParams;
     let productID = parseInt(params.get("id"));
     const productInfo = useRef({});
     const [loading, setLoading] = useState(true);
+    const [quantity, setQuantity] = useState(1);
+    const { user } = UserAuth();
 
     const getProduct = async () => {
         const productRef = collection(db, "products");
@@ -24,13 +29,18 @@ const Detail = () => {
         setLoading(false);
     };
 
+    const handleChange = (e) => {
+        setQuantity(e.target.value);
+    };
+
     useEffect(() => {
         getProduct();
     }, [loading]);
 
-    if (!loading)
+    if (!loading && user)
         return (
             <>
+                <Toaster />
                 <section className="py-5">
                     <div className="container">
                         <div className="row mb-5">
@@ -83,24 +93,25 @@ const Detail = () => {
                                                 Quantity
                                             </span>
                                             <div className="quantity">
-                                                <button className="dec-btn p-0">
-                                                    <i className="fas fa-caret-left" />
-                                                </button>
                                                 <input
                                                     className="form-control border-0 shadow-0 p-0"
                                                     type="text"
-                                                    defaultValue={1}
+                                                    value={quantity}
+                                                    onChange={handleChange}
                                                 />
-                                                <button className="inc-btn p-0">
-                                                    <i className="fas fa-caret-right" />
-                                                </button>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="col-sm-3 pl-sm-0">
                                         <a
                                             className="btn btn-dark btn-sm btn-block h-100 d-flex align-items-center justify-content-center px-0"
-                                            href="cart.html"
+                                            href="#"
+                                            onClick={() => {
+                                                addToCart(productInfo.current, quantity, user.uid);
+                                                const notify = () =>
+                                                    toast(`Added ${quantity} item${quantity && "s"} to cart.`);
+                                                notify();
+                                            }}
                                         >
                                             Add to cart
                                         </a>

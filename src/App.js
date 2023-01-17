@@ -12,6 +12,8 @@ import { useState } from "react";
 import Cart from "./pages/cart/Cart";
 import Detail from "./components/Detail/Detail";
 import Checkout from "./pages/checkout/Checkout";
+import Success from "./pages/success/Success";
+import Cancel from "./pages/cancel/Cancel";
 
 function App() {
     return (
@@ -39,6 +41,9 @@ function App() {
                     />
                     <Route path="/detail" element={<Detail />} />
                     <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/success" element={<Success />} />
+                    <Route path="/cancel" element={<Cancel />} />
+                    <Route path="*" element={<Home />} />
                 </Routes>
             </AuthContextProvider>
         </>

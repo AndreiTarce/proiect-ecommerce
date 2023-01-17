@@ -7,29 +7,35 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretLeft } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { faLongArrowAltLeft, faLongArrowAltRight, faGift } from "@fortawesome/free-solid-svg-icons";
+import { db } from "../../firebase";
+import { doc, deleteDoc, query, collection, where, getDocs, onSnapshot } from "firebase/firestore";
+import CartItem from "./CartItem";
+import { useDispatch, useSelector } from "react-redux";
+import { useCollection } from "react-firebase-hooks/firestore";
 
 const Cart = () => {
     const { user } = UserAuth();
-    const [loading, setLoading] = useState(true);
-    const [cartItems, setCartItems] = useState([]);
     const [cartTotal, setCartTotal] = useState(0);
+    const [snapshot, loading, error] = useCollection(query(collection(db, `users/${user.uid}/cart`)));
+
+    const deleteItemFromCart = async (itemId) => {
+        const q = query(collection(db, `users/${user.uid}/cart`), where("id", "==", itemId));
+        const querySnapshot = await getDocs(q);
+        await querySnapshot.forEach((doc) => {
+            deleteDoc(doc.ref);
+        });
+    };
 
     useEffect(() => {
-        getCart(user.uid).then((result) => {
-            setCartItems(result);
-            setLoading(false);
-        });
-    }, [user]);
+        setCartTotal(0);
+        if (snapshot) {
+            snapshot.docs.forEach((item) => {
+                setCartTotal((oldTotal) => oldTotal + item.data().price * item.data().quantity);
+            });
+        }
+    }, [snapshot]);
 
-    useEffect(() => {
-        cartItems.forEach((item) => {
-            console.log(item.price);
-            setCartTotal((oldTotal) => oldTotal + item.price * item.quantity);
-        });
-        console.log(cartTotal);
-    }, [cartItems]);
-
-    if (!loading && cartTotal > 0)
+    if (!loading)
         return (
             <>
                 <div className="container">
@@ -89,59 +95,16 @@ const Cart = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="border-0">
-                                            {cartItems.map((item) => (
-                                                <tr key={item.id}>
-                                                    <th className="ps-0 py-3 border-light" scope="row">
-                                                        <div className="d-flex align-items-center">
-                                                            <a
-                                                                className="reset-anchor d-block animsition-link"
-                                                                href={`/detail?id=${item.id}`}
-                                                            >
-                                                                <img
-                                                                    src={item.image}
-                                                                    alt="..."
-                                                                    width={70}
-                                                                    style={{ objectFit: "contain" }}
-                                                                />
-                                                            </a>
-                                                            <div className="ms-3">
-                                                                <strong className="h6">
-                                                                    <a
-                                                                        className="reset-anchor animsition-link"
-                                                                        href={`/detail?id=${item.id}`}
-                                                                    >
-                                                                        {item.title}
-                                                                    </a>
-                                                                </strong>
-                                                            </div>
-                                                        </div>
-                                                    </th>
-                                                    <td className="p-3 align-middle border-light">
-                                                        <p className="mb-0 small">${item.price}</p>
-                                                    </td>
-                                                    <td className="p-3 align-middle border-light">
-                                                        <div className="border d-flex align-items-center justify-content-between px-3">
-                                                            <span className="small text-uppercase text-gray headings-font-family">
-                                                                Quantity
-                                                            </span>
-                                                            <div className="quantity">
-                                                                <input
-                                                                    className="form-control form-control-sm border-0 shadow-0 p-0"
-                                                                    type="text"
-                                                                    defaultValue={item.quantity}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-3 align-middle border-light">
-                                                        <p className="mb-0 small">${item.price * item.quantity}</p>
-                                                    </td>
-                                                    <td className="p-3 align-middle border-light">
-                                                        <a className="reset-anchor" href="">
-                                                            <FontAwesomeIcon icon={faTrash} />
-                                                        </a>
-                                                    </td>
-                                                </tr>
+                                            {snapshot.empty && <p className="m-2">Your cart is empty.</p>}
+                                            {snapshot.docs.map((item) => (
+                                                <CartItem
+                                                    item={item.data()}
+                                                    key={item.data().id}
+                                                    user={user}
+                                                    onClick={() => {
+                                                        deleteItemFromCart(item.data().id);
+                                                    }}
+                                                />
                                             ))}
                                         </tbody>
                                     </table>
@@ -174,12 +137,14 @@ const Cart = () => {
                                                 <strong className="text-uppercase small font-weight-bold">
                                                     Subtotal
                                                 </strong>
-                                                <span className="text-muted small">${cartTotal}</span>
+                                                <span className="text-muted small">
+                                                    ${Math.round((cartTotal + Number.EPSILON) * 100) / 100}
+                                                </span>
                                             </li>
                                             <li className="border-bottom my-2" />
                                             <li className="d-flex align-items-center justify-content-between mb-4">
                                                 <strong className="text-uppercase small font-weight-bold">Total</strong>
-                                                <span>${cartTotal}</span>
+                                                <span>${Math.round((cartTotal + Number.EPSILON) * 100) / 100}</span>
                                             </li>
                                             <li>
                                                 <form action="#">

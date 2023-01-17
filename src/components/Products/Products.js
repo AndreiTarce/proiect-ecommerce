@@ -1,42 +1,39 @@
 import { db } from "../../firebase";
 import { useEffect, useState } from "react";
 import { onSnapshot } from "firebase/firestore";
-import { collection, query } from "firebase/firestore";
+import { collection, query, where } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
 import LoaderSpinner from "../LoaderSpinner/LoaderSpinner";
 import Product from "./Product";
+import { useCollection } from "react-firebase-hooks/firestore";
 
-const Products = () => {
-    const dispatch = useDispatch();
-    const [loading, setLoading] = useState(true);
-    const products = useSelector((state) => state.productList);
+const Products = ({ category }) => {
+    const productsRef = collection(db, `products`);
+    const filteredProductsQuery = query(productsRef, where("category", "==", category));
+    const productsQuery = query(productsRef);
+    const [filteredSnapshot, loading, error] = useCollection(filteredProductsQuery);
+    const [unfilteredSnapshot, unfilteredLoading, unfilteredError] = useCollection(productsQuery);
+    const [filtered, setFiltered] = useState(false);
 
     useEffect(() => {
-        const tripsRef = collection(db, `products`);
-        const tripsQuery = query(tripsRef);
-        onSnapshot(
-            tripsQuery,
-            (querySnapshot) => {
-                const changes = querySnapshot.docChanges();
-                changes.forEach((change) => {
-                    dispatch({ type: "ADD_PRODUCT_TO_LIST", payload: change.doc.data() });
-                });
-                setLoading(false);
-            },
-            (error) => {
-                console.log(error);
-            }
-        );
-    }, []);
+        if (category !== "") {
+            setFiltered(true);
+        }
+    }, [category]);
 
-    if (!loading)
-        return (
-            <>
-                {products.map((product) => (
-                    <Product product={product} key={product.title} />
+    if (error || unfilteredError) return <p>There was a problem loading the products. Try again.</p>;
+    if (loading || unfilteredLoading) return <LoaderSpinner />;
+
+    return (
+        <>
+            {!filtered &&
+                unfilteredSnapshot.docs.map((product) => (
+                    <Product product={product.data()} key={product.data().title} />
                 ))}
-            </>
-        );
+            {filtered &&
+                filteredSnapshot.docs.map((product) => <Product product={product.data()} key={product.data().title} />)}
+        </>
+    );
 };
 
 export default Products;

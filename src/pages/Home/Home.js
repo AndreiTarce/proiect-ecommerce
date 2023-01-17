@@ -5,8 +5,15 @@ import { db } from "../../firebase";
 import { useSelector } from "react-redux";
 import ShopHeader from "../../components/ShopHeader/ShopHeader";
 import "./style.default.css";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { collection, query, where } from "firebase/firestore";
+import { UserAuth } from "../../context/AuthContextProvider";
+import LoaderSpinner from "../../components/LoaderSpinner/LoaderSpinner";
+import { useState } from "react";
 
 const Home = () => {
+    const [category, setCategory] = useState("");
+
     return (
         <Container>
             <ShopHeader />
@@ -21,68 +28,36 @@ const Home = () => {
                             </div>
                             <ul className="list-unstyled small text-muted ps-lg-4 font-weight-normal">
                                 <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Women's T-Shirts
+                                    <a
+                                        className="reset-anchor"
+                                        href="#!"
+                                        onClick={() => {
+                                            setCategory("jewelery");
+                                        }}
+                                    >
+                                        Jewelery
                                     </a>
                                 </li>
                                 <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Men's T-Shirts
+                                    <a
+                                        className="reset-anchor"
+                                        href="#!"
+                                        onClick={() => {
+                                            setCategory("men's clothing");
+                                        }}
+                                    >
+                                        Men's clothing
                                     </a>
                                 </li>
                                 <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Dresses
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Novelty socks
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Women's sunglasses
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Men's sunglasses
-                                    </a>
-                                </li>
-                            </ul>
-                            <div className="py-2 px-4 bg-light mb-3">
-                                <strong className="small text-uppercase fw-bold">Health &amp; Beauty</strong>
-                            </div>
-                            <ul className="list-unstyled small text-muted ps-lg-4 font-weight-normal">
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Shavers
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        bags
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Cosmetic
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Nail Art
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Skin Masks &amp; Peels
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Korean cosmetics
+                                    <a
+                                        className="reset-anchor"
+                                        href="#!"
+                                        onClick={() => {
+                                            setCategory("women's clothing");
+                                        }}
+                                    >
+                                        Women's clothing
                                     </a>
                                 </li>
                             </ul>
@@ -91,33 +66,14 @@ const Home = () => {
                             </div>
                             <ul className="list-unstyled small text-muted ps-lg-4 font-weight-normal mb-5">
                                 <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
+                                    <a
+                                        className="reset-anchor"
+                                        href="#!"
+                                        onClick={() => {
+                                            setCategory("electronics");
+                                        }}
+                                    >
                                         Electronics
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        USB Flash drives
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Headphones
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Portable speakers
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Cell Phone bluetooth headsets
-                                    </a>
-                                </li>
-                                <li className="mb-2">
-                                    <a className="reset-anchor" href="#!">
-                                        Keyboards
                                     </a>
                                 </li>
                             </ul>
@@ -125,7 +81,7 @@ const Home = () => {
                         {/* SHOP LISTING*/}
                         <div className="col-lg-9 order-1 order-lg-2 mb-5 mb-lg-0">
                             <div className="row">
-                                <Products />
+                                <Products category={category} />
                             </div>
                         </div>
                     </div>

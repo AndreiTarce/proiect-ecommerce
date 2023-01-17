@@ -2,12 +2,60 @@ import { useEffect } from "react";
 import getCart from "../cart/getCart";
 import { UserAuth } from "../../context/AuthContextProvider";
 import { useState } from "react";
+import getStripe from "../../lib/getStripe";
+import { db } from "../../firebase";
+import { doc, setDoc, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
 
 const Checkout = () => {
     const { user } = UserAuth();
     const [loading, setLoading] = useState(true);
     const [cartItems, setCartItems] = useState([]);
     const [cartTotal, setCartTotal] = useState(0);
+    const [userInfo, setUserInfo] = useState({});
+
+    const handleUserInput = (e) => {
+        const property = e.target.id;
+        let updatedValue = {};
+        updatedValue[property] = e.target.value;
+        setUserInfo((userInfo) => ({
+            ...userInfo,
+            ...updatedValue,
+        }));
+    };
+
+    const deleteCart = async () => {
+        const querySnapshot = await getDocs(collection(db, `users/${user.uid}/cart`));
+        querySnapshot.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+        });
+    };
+
+    const sendOrder = async () => {
+        await setDoc(doc(db, "customers", user.uid), {
+            uid: user.uid,
+        });
+        await addDoc(collection(db, `customers/${user.uid}/orders`), userInfo);
+    };
+
+    const onSubmitHandler = async (e) => {
+        e.preventDefault();
+        sendOrder();
+        deleteCart();
+        const stripe = await getStripe();
+        const { error } = await stripe.redirectToCheckout({
+            lineItems: [
+                {
+                    price: "price_1MQbA3H1rXnXzXApNR5OZiHb",
+                    quantity: 1,
+                },
+            ],
+            mode: "payment",
+            successUrl: `http://localhost:3000/success`,
+            cancelUrl: `http://localhost:3000/cancel`,
+            customerEmail: "customer@email.com",
+        });
+        console.warn(error.message);
+    };
 
     useEffect(() => {
         getCart(user.uid).then((result) => {
@@ -17,12 +65,24 @@ const Checkout = () => {
     }, [user]);
 
     useEffect(() => {
+        setUserInfo((userInfo) => ({
+            ...userInfo,
+            cart: cartItems,
+        }));
+    }, [loading]);
+
+    useEffect(() => {
         cartItems.forEach((item) => {
-            console.log(item.price);
             setCartTotal((oldTotal) => oldTotal + item.price * item.quantity);
         });
-        console.log(cartTotal);
     }, [cartItems]);
+
+    useEffect(() => {
+        setUserInfo((userInfo) => ({
+            ...userInfo,
+            total: cartTotal,
+        }));
+    }, [cartTotal]);
 
     if (!loading)
         return (
@@ -62,7 +122,7 @@ const Checkout = () => {
                         <h2 className="h5 text-uppercase mb-4">Billing details</h2>
                         <div className="row">
                             <div className="col-lg-8">
-                                <form action="#">
+                                <form action="#" onSubmit={onSubmitHandler}>
                                     <div className="row gy-3">
                                         <div className="col-lg-6">
                                             <label className="form-label text-sm text-uppercase" htmlFor="firstName">
@@ -73,6 +133,8 @@ const Checkout = () => {
                                                 type="text"
                                                 id="firstName"
                                                 placeholder="Enter your first name"
+                                                required
+                                                onChange={handleUserInput}
                                             />
                                         </div>
                                         <div className="col-lg-6">
@@ -84,6 +146,8 @@ const Checkout = () => {
                                                 type="text"
                                                 id="lastName"
                                                 placeholder="Enter your last name"
+                                                required
+                                                onChange={handleUserInput}
                                             />
                                         </div>
                                         <div className="col-lg-6">
@@ -95,6 +159,8 @@ const Checkout = () => {
                                                 type="email"
                                                 id="email"
                                                 placeholder="e.g. Jason@example.com"
+                                                required
+                                                onChange={handleUserInput}
                                             />
                                         </div>
                                         <div className="col-lg-6">
@@ -106,6 +172,8 @@ const Checkout = () => {
                                                 type="tel"
                                                 id="phone"
                                                 placeholder="e.g. +02 245354745"
+                                                required
+                                                onChange={handleUserInput}
                                             />
                                         </div>
                                         <div className="col-lg-6">
@@ -117,19 +185,20 @@ const Checkout = () => {
                                                 type="text"
                                                 id="company"
                                                 placeholder="Your company name"
+                                                onChange={handleUserInput}
                                             />
                                         </div>
                                         <div className="col-lg-6 form-group">
                                             <label className="form-label text-sm text-uppercase" htmlFor="country">
                                                 Country
                                             </label>
-                                            <select
-                                                className="country"
+                                            <input
+                                                className="form-control form-control-lg"
+                                                type="text"
                                                 id="country"
-                                                data-customclass="form-control form-control-lg rounded-0"
-                                            >
-                                                <option value>Choose your country</option>
-                                            </select>
+                                                placeholder="Your country"
+                                                onChange={handleUserInput}
+                                            />
                                         </div>
                                         <div className="col-lg-12">
                                             <label className="form-label text-sm text-uppercase" htmlFor="address">
@@ -140,6 +209,8 @@ const Checkout = () => {
                                                 type="text"
                                                 id="address"
                                                 placeholder="House number and street name"
+                                                required
+                                                onChange={handleUserInput}
                                             />
                                         </div>
                                         <div className="col-lg-12">
@@ -151,19 +222,32 @@ const Checkout = () => {
                                                 type="text"
                                                 id="addressalt"
                                                 placeholder="Apartment, Suite, Unit, etc (optional)"
+                                                onChange={handleUserInput}
                                             />
                                         </div>
                                         <div className="col-lg-6">
                                             <label className="form-label text-sm text-uppercase" htmlFor="city">
                                                 Town/City{" "}
                                             </label>
-                                            <input className="form-control form-control-lg" type="text" id="city" />
+                                            <input
+                                                className="form-control form-control-lg"
+                                                type="text"
+                                                id="city"
+                                                required
+                                                onChange={handleUserInput}
+                                            />
                                         </div>
                                         <div className="col-lg-6">
                                             <label className="form-label text-sm text-uppercase" htmlFor="state">
                                                 State/County{" "}
                                             </label>
-                                            <input className="form-control form-control-lg" type="text" id="state" />
+                                            <input
+                                                className="form-control form-control-lg"
+                                                type="text"
+                                                id="state"
+                                                required
+                                                onChange={handleUserInput}
+                                            />
                                         </div>
                                         <div className="col-lg-6">
                                             <button
@@ -171,21 +255,7 @@ const Checkout = () => {
                                                 type="button"
                                                 data-bs-toggle="collapse"
                                                 data-bs-target="#alternateAddress"
-                                            >
-                                                <div className="form-check">
-                                                    <input
-                                                        className="form-check-input"
-                                                        id="alternateAddressCheckbox"
-                                                        type="checkbox"
-                                                    />
-                                                    <label
-                                                        className="form-check-label"
-                                                        htmlFor="alternateAddressCheckbox"
-                                                    >
-                                                        Alternate billing address
-                                                    </label>
-                                                </div>
-                                            </button>
+                                            ></button>
                                         </div>
                                         <div className="collapse" id="alternateAddress">
                                             <div className="row gy-3">
@@ -362,7 +432,9 @@ const Checkout = () => {
                                             ))}
                                             <li className="d-flex align-items-center justify-content-between">
                                                 <strong className="small fw-bold">TOTAL</strong>
-                                                <span className="text-muted small">${cartTotal}</span>
+                                                <span className="text-muted small">
+                                                    ${Math.round((cartTotal + Number.EPSILON) * 100) / 100}
+                                                </span>
                                             </li>
                                             <li className="border-bottom my-2" />
                                         </ul>
