@@ -4,7 +4,14 @@ import { UserAuth } from "../../context/AuthContextProvider";
 import { useState } from "react";
 import getStripe from "../../lib/getStripe";
 import { db } from "../../firebase";
-import { doc, setDoc, collection, addDoc, getDocs, deleteDoc } from "firebase/firestore";
+import {
+    doc,
+    setDoc,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+} from "firebase/firestore";
 
 const Checkout = () => {
     const { user } = UserAuth();
@@ -24,7 +31,9 @@ const Checkout = () => {
     };
 
     const deleteCart = async () => {
-        const querySnapshot = await getDocs(collection(db, `users/${user.uid}/cart`));
+        const querySnapshot = await getDocs(
+            collection(db, `users/${user.uid}/cart`)
+        );
         querySnapshot.forEach(async (doc) => {
             await deleteDoc(doc.ref);
         });
@@ -50,8 +59,8 @@ const Checkout = () => {
                 },
             ],
             mode: "payment",
-            successUrl: `http://localhost:3000/success`,
-            cancelUrl: `http://localhost:3000/cancel`,
+            successUrl: `https://ecommerce-2416d.web.app/success`,
+            cancelUrl: `https://ecommerce-2416d.web.app/cancel`,
             customerEmail: "customer@email.com",
         });
         console.warn(error.message);
@@ -93,22 +102,33 @@ const Checkout = () => {
                         <div className="container">
                             <div className="row px-4 px-lg-5 py-lg-4 align-items-center">
                                 <div className="col-lg-6">
-                                    <h1 className="h2 text-uppercase mb-0">Checkout</h1>
+                                    <h1 className="h2 text-uppercase mb-0">
+                                        Checkout
+                                    </h1>
                                 </div>
                                 <div className="col-lg-6 text-lg-end">
                                     <nav aria-label="breadcrumb">
                                         <ol className="breadcrumb justify-content-lg-end mb-0 px-0 bg-light">
                                             <li className="breadcrumb-item">
-                                                <a className="text-dark" href="/">
+                                                <a
+                                                    className="text-dark"
+                                                    href="/"
+                                                >
                                                     Home
                                                 </a>
                                             </li>
                                             <li className="breadcrumb-item">
-                                                <a className="text-dark" href="/cart">
+                                                <a
+                                                    className="text-dark"
+                                                    href="/cart"
+                                                >
                                                     Cart
                                                 </a>
                                             </li>
-                                            <li className="breadcrumb-item active" aria-current="page">
+                                            <li
+                                                className="breadcrumb-item active"
+                                                aria-current="page"
+                                            >
                                                 Checkout
                                             </li>
                                         </ol>
@@ -119,13 +139,18 @@ const Checkout = () => {
                     </section>
                     <section className="py-5">
                         {/* BILLING ADDRESS*/}
-                        <h2 className="h5 text-uppercase mb-4">Billing details</h2>
+                        <h2 className="h5 text-uppercase mb-4">
+                            Billing details
+                        </h2>
                         <div className="row">
                             <div className="col-lg-8">
                                 <form action="#" onSubmit={onSubmitHandler}>
                                     <div className="row gy-3">
                                         <div className="col-lg-6">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="firstName">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="firstName"
+                                            >
                                                 First name{" "}
                                             </label>
                                             <input
@@ -138,7 +163,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-6">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="lastName">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="lastName"
+                                            >
                                                 Last name{" "}
                                             </label>
                                             <input
@@ -151,7 +179,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-6">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="email">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="email"
+                                            >
                                                 Email address{" "}
                                             </label>
                                             <input
@@ -164,7 +195,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-6">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="phone">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="phone"
+                                            >
                                                 Phone number{" "}
                                             </label>
                                             <input
@@ -177,7 +211,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-6">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="company">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="company"
+                                            >
                                                 Company name (optional){" "}
                                             </label>
                                             <input
@@ -189,7 +226,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-6 form-group">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="country">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="country"
+                                            >
                                                 Country
                                             </label>
                                             <input
@@ -201,7 +241,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-12">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="address">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="address"
+                                            >
                                                 Address line 1{" "}
                                             </label>
                                             <input
@@ -214,7 +257,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-12">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="addressalt">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="addressalt"
+                                            >
                                                 Address line 2{" "}
                                             </label>
                                             <input
@@ -226,7 +272,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-6">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="city">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="city"
+                                            >
                                                 Town/City{" "}
                                             </label>
                                             <input
@@ -238,7 +287,10 @@ const Checkout = () => {
                                             />
                                         </div>
                                         <div className="col-lg-6">
-                                            <label className="form-label text-sm text-uppercase" htmlFor="state">
+                                            <label
+                                                className="form-label text-sm text-uppercase"
+                                                htmlFor="state"
+                                            >
                                                 State/County{" "}
                                             </label>
                                             <input
@@ -257,11 +309,15 @@ const Checkout = () => {
                                                 data-bs-target="#alternateAddress"
                                             ></button>
                                         </div>
-                                        <div className="collapse" id="alternateAddress">
+                                        <div
+                                            className="collapse"
+                                            id="alternateAddress"
+                                        >
                                             <div className="row gy-3">
                                                 <div className="col-12 mt-4">
                                                     <h2 className="h4 text-uppercase mb-4">
-                                                        Alternative billing details
+                                                        Alternative billing
+                                                        details
                                                     </h2>
                                                 </div>
                                                 <div className="col-lg-6">
@@ -346,7 +402,9 @@ const Checkout = () => {
                                                         id="countryAlt"
                                                         data-customclass="form-control form-control-lg rounded-0"
                                                     >
-                                                        <option value>Choose your country</option>
+                                                        <option value>
+                                                            Choose your country
+                                                        </option>
                                                     </select>
                                                 </div>
                                                 <div className="col-lg-12">
@@ -406,7 +464,10 @@ const Checkout = () => {
                                             </div>
                                         </div>
                                         <div className="col-lg-12 form-group">
-                                            <button className="btn btn-dark" type="submit">
+                                            <button
+                                                className="btn btn-dark"
+                                                type="submit"
+                                            >
                                                 Place order
                                             </button>
                                         </div>
@@ -417,23 +478,36 @@ const Checkout = () => {
                             <div className="col-lg-4">
                                 <div className="card border-0 rounded-0 p-lg-4 bg-light">
                                     <div className="card-body">
-                                        <h5 className="text-uppercase mb-4">Your order</h5>
+                                        <h5 className="text-uppercase mb-4">
+                                            Your order
+                                        </h5>
                                         <ul className="list-unstyled mb-0">
                                             {cartItems.map((item) => (
                                                 <>
                                                     <li className="d-flex align-items-center justify-content-between">
-                                                        <strong className="small fw-bold">{item.title}</strong>
+                                                        <strong className="small fw-bold">
+                                                            {item.title}
+                                                        </strong>
                                                         <span className="text-muted small">
-                                                            ${item.price * item.quantity}
+                                                            $
+                                                            {item.price *
+                                                                item.quantity}
                                                         </span>
                                                     </li>
                                                     <li className="border-bottom my-2" />
                                                 </>
                                             ))}
                                             <li className="d-flex align-items-center justify-content-between">
-                                                <strong className="small fw-bold">TOTAL</strong>
+                                                <strong className="small fw-bold">
+                                                    TOTAL
+                                                </strong>
                                                 <span className="text-muted small">
-                                                    ${Math.round((cartTotal + Number.EPSILON) * 100) / 100}
+                                                    $
+                                                    {Math.round(
+                                                        (cartTotal +
+                                                            Number.EPSILON) *
+                                                            100
+                                                    ) / 100}
                                                 </span>
                                             </li>
                                             <li className="border-bottom my-2" />
